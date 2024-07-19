@@ -18,7 +18,7 @@ const ProductCard = ({product}) => {
   }
   
   return (
-    <div className="w-full  rounded-[44px] hover:shadow-lg transition duration-200" onMouseEnter={handleMouseEnter} on onMouseLeave={handleMouseLeave}>
+    <div className="w-full  rounded-[44px] hover:shadow-purple-lg transition duration-200" onMouseEnter={handleMouseEnter} on onMouseLeave={handleMouseLeave}>
       {/* Product Image */}
       <div className="p-2">
       <div className="w-full xl:w-full h-full xl:h-[316px] relative">

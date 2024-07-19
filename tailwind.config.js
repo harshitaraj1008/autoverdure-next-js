@@ -29,6 +29,9 @@ module.exports = {
         quaternaryBg: "#63AC51",
         primaryCream: "#FBEBDB",
       },
+      boxShadow: {
+        'purple-lg': '0 10px 15px -3px rgb(154 92 245), 0 4px 6px -2px rgb(154 92 245)',
+      },
     },
   },
   plugins: [],

@@ -61,21 +61,25 @@ export const collections = [
     title: "Zenpot",
     description:
       "zenpot nurtures your plant while adding a touch of serenity to your living space.",
+    image: "https://res.cloudinary.com/dgzqokaju/image/upload/h_274,c_fit/v1721321551/RJP00508_bbqtrh.jpg"
   },
   {
     title: "Grobox",
     description:
       "Elevate your gardening game and enjoy a bountiful harvest year round.",
+    image: "https://res.cloudinary.com/dgzqokaju/image/upload/h_274,c_fit/v1721322868/WhatsApp_Image_2024-07-18_at_22.40.05_fb2d5d82_qcblox.jpg"
   },
   {
     title: "Plants",
     description:
-      "zenpot nurtures your plant while adding a touch of serenity to your living space.",
+      "At Auto Verdure, we offer more than just self-watering pots; explore a world where each leaf whispers a tale of wellness and warmth!",
+    image: "https://res.cloudinary.com/dgzqokaju/image/upload/h_274,c_fit/v1721322122/RJP00793_lr3jpx.jpg"
   },
   {
     title: "Accessory",
     description:
-      "Elevate your gardening game and enjoy a bountiful harvest year round.",
+      "Enhance your plant parent journey with a variety of user friendly gardening accessories for your Auto Verdure plants.",
+    image: "https://res.cloudinary.com/dgzqokaju/image/upload/h_274,c_fit/v1721322666/RJP00696_iw0mtq.jpg"
   },
 ];
 

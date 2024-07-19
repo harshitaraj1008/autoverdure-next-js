@@ -28,7 +28,7 @@ export default function Home() {
     <div className="w-full px-4 md:px-10 pb-[100px] bg-[#FFFCF8] flex flex-col justify-center items-center overflow-hidden">
       {/* Hero */}
       <div className="w-screen flex flex-col-reverse md:flex-row xl:flex-col justify-center items-center overflow-hidden hero-container" >
-        <div className="max-w-[361px] xl:max-w-[622px] -mt-[57px] md:mt-[123px] xl:mt-[170px] z-10 justify-center items-start gap-6 content-container" style={{ paddingRight: "12px", marginLeft: "126px"}}>
+        <div className="max-w-[361px] xl:max-w-[622px] -mt-[57px] md:mt-[123px] xl:mt-[170px] z-10 justify-center items-start gap-6 content-container" style={{ paddingRight: "12px", marginLeft: "115px", marginTop: '235px'}}>
           <p className="text-[50px] md:text-[64px] leading-[60px] md:leading-[76.8px] -tracking-[1.25px] md:-tracking-[1.6px] font-normal text-primaryGrayscale hero-title container">
             Exquisite & Sustainable <br /> Self-Watering Planters
           </p>
@@ -64,16 +64,14 @@ export default function Home() {
           <div className="h-full w-full relative">
             <Image
               className="w-full h-full hidden xl:flex top-0"
-              style={{ width: "103%", maxWidth: "103%", transform: "scale(1.042)" }}
+              style={{ width: "103%", maxWidth: "103%", transform: "scale(1.042)"}}
               src="/bgImage3.png"
               alt="bgImage"
               width={1550}
               height={776}
             />
             <div className="h-[100px] w-[20px] absolute z-15" style={{height: "579px", width: "20px", marginLeft: "27%", background: "#FFFCF8", top: "0px", animation: "shrinkHeight 2s forwards", animationDelay: "0.2s"}}></div>
-            <div className="h-[100px] w-[20px] absolute z-15" style={{height: "100px", width: "20px", marginLeft: "27%", background: "#FFFCF8", top: "0px",}}></div>
             <div className="h-[100px] w-[20px] absolute z-15" style={{height: "574px", width: "10px", marginLeft: "82.65%", background: "#FFFCF8", top: "0px", animation: "shrinkHeightRight 2s forwards", animationDelay: "0.2s"}}></div>
-            <div className="h-[100px] w-[20px] absolute z-15" style={{height: "100px", width: "10px", marginLeft: "82.65%", background: "#FFFCF8", top: "0px",}}></div>
             <div className="absolute" style={{background: "#FFFCF8", top: "395px", height: "10px", width: "57px", marginLeft: "23.4%", animation: "shrinkWidthLeft 1.5s forwards", animationDelay: "0.2s"}}></div>
             <div className="absolute" style={{background: "#FFFCF8", top: "394px", height: "10px", width: "57px", marginLeft: "82.9%", animation: "shrinkWidthRight 1.5s forwards", animationDelay: "0.2s"}}></div>
           </div>
@@ -93,6 +91,7 @@ export default function Home() {
               <CollectionCard
                 title={collection.title}
                 description={collection.description}
+                image={collection.image}
               />
             </div>
           ))}
@@ -216,8 +215,8 @@ export default function Home() {
         <div className="hidden md:flex flex-col xl:w-full justify-center items-center">
           <div className="w-[240px] h-[240px] flex flex-col justify-center items-center p-10 rounded-full bg-[#F3F0F1] border-[3px] border-primaryMain">
             <Image
-              className="object-contain"
-              src="/pour.png"
+              className="object-cover"
+              src="https://res.cloudinary.com/dgzqokaju/image/upload/v1721325296/Untitled_video_-_Made_with_Clipchamp_1_khdjlv.gif"
               alt="pour"
               width={160.741}
               height={160}
@@ -260,8 +259,8 @@ export default function Home() {
           <div className="w-[366px] h-[432px] xl:h-full flex xl:flex-1 flex-col gap-y-5 xl:gap-y-8">
             <div className="w-full flex flex-col gap-5">
               <p className="text-4xl xl:text-[50px] leading-[43.2px] xl:leading-[60px] -tracking-[0.9px] xl:-tracking-[1.25px] font-normal text-primaryGrayscale">
-                Join the Auto Verdure Movement to Transform Indoor & Outdoor
-                Urban Plant Growing.
+              At Auto Verdure, we offer more than just self-watering pots; explore a world where each leaf
+              whispers a tale of wellness and warmth!
               </p>
               <p className="text-sm leading-6 font-normal text-secondaryGrayscale">
                 No Contaminants. Only Nutrient-Packed Produce.
@@ -790,7 +789,6 @@ export default function Home() {
         title="Explore Our Blog for Green Inspiration"
         description="Our blog is filled with informative and inspiring content on all things green. From plant care tips and advice to the latest trends in gardening and design, our experts share their knowledge to help you bring your indoor and outdoor spaces to life."
       />
-
       {/* Contact */}
       <Contact />
       {/* </div> */}

@@ -1,9 +1,26 @@
-import React from "react";
+import React, { useRef } from "react";
 import GuideCard from "./GuideCard.jsx/GuideCard";
 import Link from "next/link";
 import { guides } from "../constant/data";
+import Image from "next/image";
 
 const RelatedBlog = ({ title, description }) => {
+
+  const containerRef = useRef(null)
+
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: -(303 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: (303 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' });
+    }
+  };
+
+  
   return (
     <div className="w-full px-4 md:px-[70px] xl:px-[120px] 2xl:px-[250px] flex flex-col justify-center items-center">
       <div className="mt-20 w-full flex flex-col justify-center items-center">
@@ -16,11 +33,40 @@ const RelatedBlog = ({ title, description }) => {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-[41px] md:gap-y-[57px] xl:gap-y-[73px] md:gap-x-[55px] xl:gap-x-[41px]">
-          {guides.map((guide, index) => (
-            <GuideCard guide={guide} key={index} />
-          ))}
+        <div className="relative mt-12 w-full overflow-hidden">
+          <div ref={containerRef} className="flex gap-x-[20px] overflow-hidden no-scrollbar" style={{columnGap: "calc((100% - 900px)/4)"}}>
+            <div></div>
+            {guides.map((guide, index) => (
+              <GuideCard guide={guide} key={index} className="flex-shrink-0 w-[300px]" />
+            ))}
+          </div>
         </div>
+
+        <div className="mt-[43px] w-full flex gap-10 justify-center items-center">
+              <Image
+                src="/leftArrow1.svg"
+                alt="leftArrow1"
+                width={13}
+                height={26}
+                onClick={scrollLeft}
+              />
+            <Image
+              src="/rightArrow1.svg"
+              alt="rightArrow1"
+              width={13}
+              height={26}
+              onClick={scrollRight}
+            />
+          </div>
+
+
+        {/* <div className="mt-12 gap-y-[41px] md:gap-y-[57px] xl:gap-y-[73px] md:gap-x-[55px] xl:gap-x-[41px]">
+          {guides.map((guide, index) => (
+            <div style={{width: '300px'}}>
+              <GuideCard guide={guide} key={index} />
+            </div>
+          ))}
+        </div> */}
       </div>
 
       {/* Explore More */}

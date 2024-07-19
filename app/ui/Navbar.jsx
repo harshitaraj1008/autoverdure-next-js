@@ -27,10 +27,10 @@ const Navbar = () => {
         href="/"
         className="gap-[10px] no-underline text-black flex justify-center items-center"
       >
-        <div className="object-contain w-[48.475px] h-[44px]">
-          <Image src="/logoHD.png" alt="logo" width={48.475} height={44} unoptimized={true} priority />
+        <div className="object-contain w-[70px] h-[70px]">
+          <Image src="/logoHD.png" alt="logo" width={70} height={70} unoptimized={true} priority style={{marginBottom: '10px'}}/>
         </div>
-        <p className="text-sm leading-[28.8px] fontText uppercase text-center font-medium">
+        <p className="text-sm leading-[28.8px] fontText uppercase text-center font-medium" style={{fontSize: '1.1rem'}}>
           Auto Verdure
         </p>
       </Link>
@@ -41,7 +41,7 @@ const Navbar = () => {
       </div>
 
       {/* Nav Items */}
-      <div className="hidden xl:block" style={{marginLeft: "90px"}}>
+      <div className="hidden xl:block" style={{marginLeft: "197px"}}>
         <ul className="gap-16 flex justify-center items-center">
           {navItems.map((item, index) => (
             <Link
@@ -55,6 +55,7 @@ const Navbar = () => {
                     ? "font-bold capitalize"
                     : "font-normal hover:font-bold capitalize"
                 }
+                
               >
                 {item.title}
               </li>

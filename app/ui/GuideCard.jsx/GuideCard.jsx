@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
-const GuideCard = ({ guide, href }) => {
+const GuideCard = ({ guide, href, className }) => {
+
   return (
-    <Link href="/guides/123" className="w-full">
+    <Link href="/guides/123" className={`${className}`}>
       <div className="w-full h-[226px] md:h-[194.158px] xl:h-[234px] rounded-3xl">
         <Image
           className="object-cover w-full h-[226px] md:h-[194.158px] xl:h-[234px] rounded-3xl"
