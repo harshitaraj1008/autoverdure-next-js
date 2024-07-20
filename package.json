@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.2.0",
-    "@google/model-viewer": "^3.5.0",
     "@react-email/render": "^0.0.16",
     "@reduxjs/toolkit": "^2.2.6",
     "@types/bcrypt": "^5.0.2",

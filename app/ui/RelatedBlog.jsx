@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+'use client'
+import React, { useRef, useState } from "react";
 import GuideCard from "./GuideCard.jsx/GuideCard";
 import Link from "next/link";
 import { guides } from "../constant/data";
@@ -7,16 +8,21 @@ import Image from "next/image";
 const RelatedBlog = ({ title, description }) => {
 
   const containerRef = useRef(null)
-
+  const [currentIndex, setCurrentIndex] = useState(0)
   const scrollLeft = () => {
+    if (currentIndex !== 0) {
+      setCurrentIndex(currentIndex-1)
+    }
+
     if (containerRef.current) {
-      containerRef.current.scrollBy({ left: -(303 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' });
+      containerRef.current.scrollBy((currentIndex === 1) ? { left: -(300.35 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' } : { left: -(300 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
+    setCurrentIndex(currentIndex+1)
     if (containerRef.current) {
-      containerRef.current.scrollBy({ left: (303 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' });
+      containerRef.current.scrollBy(((currentIndex === 0) ? { left: (300.35 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' } : { left: (300 + ((containerRef.current.offsetWidth - 900)/4)), behavior: 'smooth' }));
     }
   };
 

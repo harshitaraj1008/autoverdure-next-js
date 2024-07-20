@@ -16,7 +16,7 @@ const nextConfig = {
         },
       ],
     });
-
+    //config.experiments = { asyncWebAssembly: true };
     return config;
   },
     images: {
