@@ -80,7 +80,7 @@ export default async function handler(req, res) {
 
         if (result) {
             setCookie(res, result);
-            const cartProducts = await findCartProducts(cartId);
+            const cartProducts = await findCartProducts((cartId || result));
             return res.status(200).json({cartProducts: cartProducts});
         } else {
             return res.status(500).json({error: 'Something went wrong while adding to cart'});
