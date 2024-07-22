@@ -97,7 +97,6 @@ const SingleProductPage = ({ productData, allProducts }) => {
         setButtonText('Added');
         const result = await response.json();
         const cartProducts = result.cartProducts;
-        console.log("cart Products: ",cartProducts);
         setCartItems(cartProducts);
         setIsCartVisible(true);
       } else {
