@@ -3,13 +3,24 @@ import Link from "next/link";
 import React from "react";
 import findCartProducts from "@/lib/server/findCartProducts";
 import {parse} from "cookie";
+import { useDispatch } from "react-redux";
+import { setProducts } from "@/features/productsSlice/productSlice";
+import { useRouter } from "next/router";
 
 const Cart = (props) => {
     const products = props.products;
+    const user = props.user;
+    const dispatch = useDispatch();
+    const router = useRouter()
     let subtotal = 0;
 
     for (let product of products) {
       subtotal += product.productQty * product.price;
+    }
+
+    const handleCheckout = () => {
+      dispatch(setProducts(products));
+      router.push('/checkout/member')
     }
     return (
       <div className="mt-[70px] sm:mt-[155px] xl:mt-[105px] mb-[131px] sm:mb-[106px] xl:mb-[188px] w-full bg-[#FFFCF8] xl:flex xl:flex-col xl:justify-center xl:items-center">
@@ -196,12 +207,12 @@ const Cart = (props) => {
                   </div>
                 </div>
   
-                <Link
-                  href="/cart/checkout/signup"
+                <button
+                  onClick={handleCheckout}
                   className="w-full sm:w-[353px] xl:w-full text-base leading-[20.8px] px-6 py-[17px] rounded-[30px] text-[#FFFFFF] font-normal bg-[#070707] flex justify-center items-center"
                 >
                   Checkout
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -211,6 +222,8 @@ const Cart = (props) => {
 };
 
 export async function getServerSideProps({req, res}) {
+    const currentUser = (await import('@/lib/server/currentUser')).default;
+    const user = await currentUser(req);
     const cookies = req.headers.cookie;
     let cartId;
     let products;
@@ -222,16 +235,16 @@ export async function getServerSideProps({req, res}) {
         products = await findCartProducts(cartId);
         if (products) {
             return {
-                props: { products: products },
+                props: { products: products, user: user },
             }
         } else {
             return {
-                props: { products: [] },
+                props: { products: [], user: user },
             }
         }
     } else {
         return {
-            props: { products: [] },
+            props: { products: [], user: user },
         }
     }
 }
