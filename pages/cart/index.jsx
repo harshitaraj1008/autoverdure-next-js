@@ -3,24 +3,13 @@ import Link from "next/link";
 import React from "react";
 import findCartProducts from "@/lib/server/findCartProducts";
 import {parse} from "cookie";
-import { useDispatch } from "react-redux";
-import { setProducts } from "@/features/productsSlice/productSlice";
-import { useRouter } from "next/router";
 
 const Cart = (props) => {
     const products = props.products;
-    const user = props.user;
-    const dispatch = useDispatch();
-    const router = useRouter()
     let subtotal = 0;
 
     for (let product of products) {
       subtotal += product.productQty * product.price;
-    }
-
-    const handleCheckout = () => {
-      dispatch(setProducts(products));
-      router.push('/checkout/member')
     }
     return (
       <div className="mt-[70px] sm:mt-[155px] xl:mt-[105px] mb-[131px] sm:mb-[106px] xl:mb-[188px] w-full bg-[#FFFCF8] xl:flex xl:flex-col xl:justify-center xl:items-center">
@@ -151,9 +140,9 @@ const Cart = (props) => {
               {/* Product Table */}
               <div className="w-[784px] h-[475px] flex-col justify-start items-start gap-[37px] inline-flex">
                 <div className="pl-[160px] pr-[142px] py-[15px] bg-white rounded-2xl border border-black justify-start items-start gap-24 inline-flex">
-                  <div className="w-[120px] text-black text-base font-medium font-['Urbanist']">Product</div>
-                  <div className="w-[60px] text-black text-base font-medium font-['Urbanist']">Price</div>
-                  <div className="w-[65px] text-black text-base font-medium font-['Urbanist']">Quantity</div>
+                  <div className="w-[110px] text-black text-base font-medium font-['Urbanist']">Product</div>
+                  <div className="w-[70px] text-black text-base font-medium font-['Urbanist']">Price</div>
+                  <div className="w-[50px] text-black text-base font-medium font-['Urbanist']">Quantity</div>
                   <div className="text-black text-base font-medium font-['Urbanist']">Subtotal</div>
                 </div>
                 {products.map((item, index) => (
@@ -171,19 +160,18 @@ const Cart = (props) => {
                   <div className="left-[59px] top-[10px] absolute text-black text-base font-medium font-['Urbanist']">{item.productQty}</div>
                 </div>
                 <div className="text-black text-base font-normal font-['Urbanist']">{item.productQty * item.price}</div>
+                  <button className="trash-can"> 
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="29" viewBox="0 0 28 29" fill="none">
+                    <path d="M23.625 7.5H20.125V5.3125C20.125 4.34727 19.3402 3.5625 18.375 3.5625H9.625C8.65977 3.5625 7.875 4.34727 7.875 5.3125V7.5H4.375C3.89102 7.5 3.5 7.89102 3.5 8.375V9.25C3.5 9.37031 3.59844 9.46875 3.71875 9.46875H5.37031L6.0457 23.7695C6.08945 24.702 6.86055 25.4375 7.79297 25.4375H20.207C21.1422 25.4375 21.9105 24.7047 21.9543 23.7695L22.6297 9.46875H24.2812C24.4016 9.46875 24.5 9.37031 24.5 9.25V8.375C24.5 7.89102 24.109 7.5 23.625 7.5ZM18.1562 7.5H9.84375V5.53125H18.1562V7.5Z" fill="#888888" style={{fill:"#888888",fill:"color(display-p3 0.5333 0.5333 0.5333)",fillOpacity:"1"}}/>
+                  </svg>
+                  </button>
+                
                 <div className="w-7 h-7 relative" />
               </div>
 
                 ))}
                 
             </div>
-                    {/* <div className="text-[#000000]">Rs. 250,000.00
-                      <button className="trash-can"> 
-                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="29" viewBox="0 0 28 29" fill="none">
-                        <path d="M23.625 7.5H20.125V5.3125C20.125 4.34727 19.3402 3.5625 18.375 3.5625H9.625C8.65977 3.5625 7.875 4.34727 7.875 5.3125V7.5H4.375C3.89102 7.5 3.5 7.89102 3.5 8.375V9.25C3.5 9.37031 3.59844 9.46875 3.71875 9.46875H5.37031L6.0457 23.7695C6.08945 24.702 6.86055 25.4375 7.79297 25.4375H20.207C21.1422 25.4375 21.9105 24.7047 21.9543 23.7695L22.6297 9.46875H24.2812C24.4016 9.46875 24.5 9.37031 24.5 9.25V8.375C24.5 7.89102 24.109 7.5 23.625 7.5ZM18.1562 7.5H9.84375V5.53125H18.1562V7.5Z" fill="#888888" style={{fill:"#888888",fill:"color(display-p3 0.5333 0.5333 0.5333)",fillOpacity:"1"}}/>
-                      </svg>
-                      </button>
-                    </div> */}
                   
             </div>
   
@@ -207,12 +195,12 @@ const Cart = (props) => {
                   </div>
                 </div>
   
-                <button
-                  onClick={handleCheckout}
+                <Link
+                  href="/cart/checkout/signup"
                   className="w-full sm:w-[353px] xl:w-full text-base leading-[20.8px] px-6 py-[17px] rounded-[30px] text-[#FFFFFF] font-normal bg-[#070707] flex justify-center items-center"
                 >
                   Checkout
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -222,8 +210,6 @@ const Cart = (props) => {
 };
 
 export async function getServerSideProps({req, res}) {
-    const currentUser = (await import('@/lib/server/currentUser')).default;
-    const user = await currentUser(req);
     const cookies = req.headers.cookie;
     let cartId;
     let products;
@@ -235,16 +221,16 @@ export async function getServerSideProps({req, res}) {
         products = await findCartProducts(cartId);
         if (products) {
             return {
-                props: { products: products, user: user },
+                props: { products: products },
             }
         } else {
             return {
-                props: { products: [], user: user },
+                props: { products: [] },
             }
         }
     } else {
         return {
-            props: { products: [], user: user },
+            props: { products: [] },
         }
     }
 }

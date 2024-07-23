@@ -4,10 +4,9 @@ import "./styles.css";
 import Select from 'react-select';
 import Image from "next/image";
 
-const ProductListPage = (props) => {
+const ProductListPage = () => {
   const [showForm, setShowForm] = useState(false);
-  const [products, setProducts] = useState(props.products);
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [products, setProducts] = useState([]);
   const [productName, setProductName] = useState("");
   const [productDetails, setProductDetails] = useState("");
   const [productPrice, setProductPrice] = useState("");
@@ -29,11 +28,9 @@ const ProductListPage = (props) => {
     moreSunlight: false,
     lessSunlight: false,
   });
-  const [colors, setColors] = useState([]);
-  const [size, setSize] = useState([])
-  const [loading, setLoading] = useState(false);
-  const [editIndex, setEditindex] = useState(null);
-  const [selectedProducts, setSelectedProducts] = useState([])
+  const [colors, setColors]= useState([]);
+  const [size, setSize]= useState([]);
+  const [finish, setFinish] = useState([]);
 
   const colorOptions=[
     {value: 'white', label: 'White'},
@@ -51,6 +48,182 @@ const ProductListPage = (props) => {
     {value: 'XL',label: 'XL'},
   ];
 
+  const finishOptions = [
+    {value: 'matt', label: 'Matt'},
+    {value: 'gloss', label: 'Gloss'},
+    {value: 'Art', label: 'Art'},
+  ];
+  const [loading, setLoading] = useState(false);
+  const [editIndex, setEditindex] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([])
+
+  const handleAddProductClick = () => {
+    setShowForm(true);
+    setEditindex(null);
+    clearForm()
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      setCheckboxes({
+        ...checkboxes,
+        [name]: checked,
+      });
+    } else {
+      if (name === "productName") setProductName(value);
+      if (name === "productDetails") setProductDetails(value);
+      if (name === "productPrice") setProductPrice(value);
+      if (name === "stockQuantity") setStockQuantity(value);
+      if (name === "type") setType(value);
+      if (name === "innerLength") setInnerLength(value);
+      if (name === "innerHeight") setInnerHeight(value);
+      if (name === "dimensions") setDimensions(value);
+     }
+  };
+
+  const handleImageChange = (e, key) => {
+    const file = e.target.files[0];
+    setProductImages({ ...productImages, [key]: file });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const newProduct = {
+      id: editIndex !== null ? products[editIndex].id : products.length+1,
+      name: productName,
+      description: productDetails,
+      price: productPrice,
+      type: type,
+      stockQuantity: stockQuantity,
+      innerHeight: innerHeight,
+      innerLength: innerLength,
+      dimensions: dimensions,
+      images: Object.values(productImages).filter((image) => image),
+      attributes: {
+        petFriendly: checkboxes.petFriendly,
+        notPetFriendly: checkboxes.notPetFriendly,
+        moreSunlight: checkboxes.moreSunlight,
+        lessSunlight: checkboxes.lessSunlight,
+      },
+      colors: colors.map(color => color.value),
+      size: size.map(size => size.value),
+      finish: finish.map(finish => finish.value),
+    };
+    
+    if(editIndex !== null)
+    {
+      const updatedProducts = [...products];
+      updatedProducts[editIndex]= newProduct;
+      setProducts(updatedProducts);
+
+
+      try {
+        const response = await fetch(`/api/products/update/${newProduct.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(newProduct),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const result = await response.json();
+      console.log('Product Updated', result)
+      } 
+      catch (error) {
+        console.error('There was a problem with your fetch operation:', error);
+      }}
+      else{
+        setProducts([...products, newProduct]);
+      
+        try{
+          const formData = new FormData();
+
+          Object.keys(newProduct).forEach((key) => {
+
+            if (key === 'images') {
+
+              newProduct.images.forEach((image, index) => {
+                
+                formData.append(`images[${index}]`, image);
+             
+              });
+            } 
+            else if (typeof newProduct[key] === 'object' && newProduct[key] !== null) 
+            {
+              Object.keys(newProduct[key]).forEach((subKey) => {
+                formData.append(`${key}[${subKey}]`, newProduct[key][subKey]);
+              });
+            } 
+            else {
+              formData.append(key, newProduct[key]);
+            }
+          });
+    
+          const response = await fetch('/api/products/add', {
+            method: 'POST',
+            body: formData,
+          });
+    
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+    
+          const result = await response.json();
+    
+          if (response.status === 200) {
+            window.location.href = `store/${productName}/${result.id}`;
+          }
+    
+          console.log('Product added:', result);
+        } catch (error) {
+          console.error('There was a problem with your fetch operation:', error);
+        }
+      }
+    
+      setTimeout(() => {
+        setLoading(false);
+        setShowForm(false);
+        clearForm();
+      }, 2000);
+  };
+  
+
+  const handleEdit = (index) => {
+    const editedProduct = products[index];
+    setProductName(editedProduct.name);
+    setProductDetails(editedProduct.description);
+    setProductPrice(editedProduct.price);
+    setType(editedProduct.type);
+    setStockQuantity(editedProduct.stockQuantity);
+    setInnerHeight(editedProduct.innerHeight);
+    setInnerLength(editedProduct.innerLength);
+    setDimensions(editedProduct.dimensions);
+    setProductImages({
+      first: editedProduct.images[0] || null,
+      second: editedProduct.images[1] || null,
+      third: editedProduct.images[2] || null,
+      fourth: editedProduct.images[3] || null,
+      fifth: editedProduct.images[4] || null,
+    });
+    setCheckboxes({
+      petFriendly: editedProduct.attributes.petFriendly,
+      notPetFriendly: editedProduct.attributes.notPetFriendly,
+      moreSunlight: editedProduct.attributes.moreLight,
+      lessSunlight: editedProduct.attributes.lessLight,
+    });
+    setColors(colorOptions.filter(option => editedProduct.colors.includes(option.value)));
+    setSize(sizeOptions.filter(option => editedProduct.size.includes(option.value)));
+    setFinish(finishOptions.filter(option => editedProduct.finish.includes(option.value)));
+    setShowForm(true);
+    setEditindex(index);
+  };
   const clearForm = () => {
     setProductName("");
     setProductDetails("");
@@ -73,153 +246,9 @@ const ProductListPage = (props) => {
       moreSunlight: false,
       lessSunlight: false,
     });
-    
-  };
-
-  const handleAddProductClick = () => {
-    setShowForm(true);
-    setEditindex(null);
-    clearForm();
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setCheckboxes({
-        ...checkboxes,
-        [name]: checked,     
-      });
-    } else {
-      if (name === "productName") setProductName(value);
-      if (name === "productDetails") setProductDetails(value);
-      if (name === "productPrice") setProductPrice(value);
-      if (name === "stockQuantity") setStockQuantity(value);
-      if (name === "type") setType(value);
-      if (name === "innerLength") setInnerLength(value);
-      if (name === "innerHeight") setInnerHeight(value);
-      if (name === "dimensions") setDimensions(value);
-      
-     }
-  };
-
-  const handleImageChange = (e, key) => {
-    const file = e.target.files[0];
-    setProductImages({ ...productImages, [key]: file });
-  };
-
-  const toggleDropdown = (index) => {
-    setActiveDropdown(activeDropdown === index ? null : index);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("productName", productName);
-    formData.append("productDetails", productDetails);
-    formData.append("productPrice", productPrice);
-    formData.append("type", type);
-    formData.append("stockQuantity", stockQuantity);
-    formData.append('firstImage', productImages.first);
-    formData.append('secondImage', productImages.second);
-    formData.append('thirdImage', productImages.third);
-    formData.append('fourthImage', productImages.fourth);
-    formData.append('fifthImage', productImages.fifth);
-    formData.append('innerLength',innerLength);
-    formData.append('innerHeight', innerHeight);
-    formData.append('dimensions', dimensions);
-
-
-    Object.keys(checkboxes).forEach((key) => {
-      formData.append(key, checkboxes[key]);
-    });
-
-    colors.map((color) => {
-      formData.append(color.value, "true");
-    })
-
-    size.map((s) => {
-      formData.append(s.value, 'true');
-    })
-
-    if (editIndex !== null) {
-      const updatedProducts = [...products];
-      const productId = updatedProducts[editIndex].productId;
-      formData.append('productId', productId)
-      updatedProducts[editIndex] = Object.fromEntries(formData);
-      try {
-        const response = await fetch(`/api/products/${productId}/edit`, {
-            method: 'POST',
-            body: formData,
-        });
-        setLoading(false);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const result = await response.json();
-
-        if (response.status === 200) {
-            window.location.href = `/store/${type}/${result.id}`;
-        }
-        console.log('Product edited:', result);
-      } catch (error) {
-            console.error('There was a problem with your fetch operation:', error);
-      } 
-    } else {
-      const newProduct = Object.fromEntries(formData);
-      setProducts([...products, newProduct]);
-
-      try {
-        const response = await fetch('/api/products/add', {
-            method: 'POST',
-            body: formData,
-          });
-    
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-    
-          const result = await response.json();
-    
-          if (response.status === 200) {
-            window.location.href = `/store/${productType}/${result.id}`;
-          }
-    
-          console.log('Product added:', result);
-        } catch (error) {
-          console.error('There was a problem with your fetch operation:', error);
-        }
-      }
-      setShowForm(false);
-    }
-    
-
-  const handleEdit = (index) => {
-    const editedProduct = products[index];
-    setProductName(editedProduct.productName);
-    setProductDetails(editedProduct.productDetails);
-    setProductPrice(editedProduct.productPrice);
-    setType(editedProduct.productTyoe);
-    setStockQuantity(editedProduct.stockQuantity);
-    setInnerHeight(editedProduct.innerHeight);
-    setInnerLength(editedProduct.innerLength);
-    setDimensions(editedProduct.dimensions);
-    setProductImages({
-      first: editedProduct.productImages[0] || null,
-      second: editedProduct.productImages[1] || null,
-      third: editedProduct.productImages[2] || null,
-      fourth: editedProduct.productImages[3] || null,
-      fifth: editedProduct.productImages[4] || null,
-    });
-    setCheckboxes({
-      petFriendly: editedProduct.petFriendly,
-      petUnfriendly: editedProduct.petUnfriendly,
-      moreLight: editedProduct.moreLight,
-      lessLight: editedProduct.lessLight,
-    });
-    setShowForm(true);
-    setEditindex(index)
+    setColors([])
+    setSize([])
+    setFinish([])
   };
 
   const handleCheckboxChange = (index) => {
@@ -250,6 +279,10 @@ const ProductListPage = (props) => {
             >
               Add Product
             </button>
+            <button onClick={ handleDeleteChecked}
+                className="delete-checked-button">
+                Delete
+            </button>
           </div>
           
           <table rules="all">
@@ -259,34 +292,26 @@ const ProductListPage = (props) => {
                 <td className="w-[80px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Dimensions</td>
                 <td className="w-[50px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Stock Quantity</td>
                 <td className="w-[50px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Type</td>
-                {/* <td className="w-[120px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Price</td>
-                <td className="w-[60px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Size</td> */}
-                <td className="w-[100px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Delete</td>
+                <td className="w-[100px] text-gray-900 text-xs font-normal font-['Poppins'] tracking-tight">Actions</td>
               </tr>
             </thead>
 
             <tbody className="mt-[30px] hidden md:flex flex-col gap-5">
               {products.map((product, index) =>(
                 <tr 
-                key={index}
+                key={product.id}
                 className="px-[35px] py-[38px] text-xs w-full border-[1px] border-black rounded-2xl bg-white flex justify-between items-center"
                 >
-                <input type="checkbox" className="product-checkbox" onChange={(e) => handleChange(e)}/>
-                  <td className="w-[110px]">{product.productName}</td>
+                <input type="checkbox" checked={selectedProducts.includes(index)} className="product-checkbox" onChange={(e) => handleCheckboxChange(index)}/>
+                  <td className="w-[110px]">{product.name}</td>
                   <td className="w-[120px]">{product.dimensions}</td>
                   <td className="w-[70px]">{product.stockQuantity}</td>
-                  <td className="w-[90px]">{product.productType}</td>
-                  {/* <td className="w-[145px]">{product.price}</td>
-                  <td className="w-[70px]">{product.size}</td> */}
+                  <td className="w-[90px]">{product.type}</td>
                   <td className="w-[70px] flex justify-around items-center">
                     <button onClick={() => handleEdit(index)}
                       className="edit-button">
                         Edit
                     </button>
-                    {/* <button onClick={() => handleDeleteChecked(index)}
-                      className="delete-button">
-                        Delete
-                    </button> */}
                   </td>
                 </tr>
               ))}
@@ -353,6 +378,21 @@ const ProductListPage = (props) => {
               </div>
             </div>
             <div className="form-group">
+              <label>Styles</label>
+              <div className="checkbox-group">
+              <Select
+                isMulti
+                name="finish"
+                options={finishOptions}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                value={finish}
+                onChange={setFinish}
+              />
+              </div>
+            </div>
+
+            <div className="form-group">
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div style={{ width: "48%" }}>
                   <label>Stock Quantity</label>
@@ -380,9 +420,10 @@ const ProductListPage = (props) => {
                 <option value="" disabled>
                   Select Type
                 </option>
-                <option value="grobox">GroBox</option>
-                <option value="zenpot">ZenPot</option>
-                <option value="plants">Plant</option>
+                <option value="GroBox">GroBox</option>
+                <option value="ZenPot">ZenPot</option>
+                <option value="Plant">Plant</option>
+                <option value="accessory">Accessory</option>
               </select>
             </div>
             <div className="form-group">
@@ -431,33 +472,20 @@ const ProductListPage = (props) => {
             <div className="display-column">
               <h3><span class="bolded">Product Gallery</span></h3>
               <div className="gallery-thumbnails">
-                {!(Array.isArray(productImages)) ? (
-                  Object.keys(productImages).map((key, index) => (
-                    <div key={index} className="thumbnail">
-                      {!productImages[key] && (
-                        <div className="placeholder">Image {index + 1}</div>
-                      )}
-                      {productImages[key] && (
-                        <img
-                        
-                          src={
-                            (typeof(productImages[key]) === 'string') ? productImages[key] : URL.createObjectURL(productImages[key])
-                          }
-                          alt={`Thumbnail ${index + 1}`}
-                          />
-                      )}
-                      
-                      {/* <input type='file' name={`image${index + 1}`} onChange={(e) => handleImageChange(e, index)} /> */}
-                    </div>
-                  ))
-                ) : (
-                  productImages.forEach((image) => {
-                    <div className="thumbnail">
-                      <Image src={image}></Image>
-                    </div>
-                  })
-                )}
-                
+                {Object.keys(productImages).map((key, index) => (
+                  <div key={index} className="thumbnail">
+                    {productImages[key] && (
+                      <img
+                        src={URL.createObjectURL(productImages[key])}
+                        alt={`Thumbnail ${index + 1}`}
+                        />
+                    )}
+                    {!productImages[key] && (
+                      <div className="placeholder">Image {index + 1}</div>
+                    )}
+                    {/* <input type='file' name={`image${index + 1}`} onChange={(e) => handleImageChange(e, index)} /> */}
+                  </div>
+                ))}
               </div>
             </div>
             <div className="form-group">
@@ -540,10 +568,13 @@ export async function getServerSideProps() {
   const zenpot = await findAllProducts('zenpot');
   const grobox = await findAllProducts('grobox');
   const plant = await findAllProducts('plants');
+  const accessory = await findAllProducts('accessory');
 
-  const products = [...(zenpot ? zenpot : []), ...(grobox ? grobox : []), ...(plant ? plant : [])];
+  const products = [...(zenpot ? zenpot : []), ...(grobox ? grobox : []), ...(plant ? plant : []), ...(accessory ? accessory : [])];
 
+  // console.log(products)
   return {
+    
     props: {
       products: products
     }

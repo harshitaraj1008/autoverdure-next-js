@@ -1,13 +1,27 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React,{useState} from "react";
 import { navItems } from "../constant/data";
 import { usePathname } from "next/navigation";
+import { FaSearch,FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
-    let pathname = usePathname();
+  const [isVisible, setIsVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  
+  const toggleSearchBar = (e) => {
+    e.preventDefault();
+    setIsVisible(!isVisible);
+  } 
+
+  const handleClear = () => {
+    setSearchText("");
+    setIsVisible(false);
+  };
+
+  let pathname = usePathname();
     if (pathname) {
         pathname = pathname.split("/").pop();
     } else {
@@ -27,10 +41,10 @@ const Navbar = () => {
         href="/"
         className="gap-[10px] no-underline text-black flex justify-center items-center"
       >
-        <div className="object-contain w-[70px] h-[70px]">
-          <Image src="/logoHD.png" alt="logo" width={70} height={70} unoptimized={true} priority style={{marginBottom: '10px'}}/>
+        <div className="object-contain w-[48.475px] h-[44px]">
+          <Image src="/logoHD.png" alt="logo" width={48.475} height={44} unoptimized={true} priority />
         </div>
-        <p className="text-sm leading-[28.8px] fontText uppercase text-center font-medium" style={{fontSize: '1.1rem'}}>
+        <p className="text-sm leading-[28.8px] fontText uppercase text-center font-medium">
           Auto Verdure
         </p>
       </Link>
@@ -41,7 +55,7 @@ const Navbar = () => {
       </div>
 
       {/* Nav Items */}
-      <div className="hidden xl:block" style={{marginLeft: "197px"}}>
+      <div className="hidden xl:block" style={{marginLeft: "90px"}}>
         <ul className="gap-16 flex justify-center items-center">
           {navItems.map((item, index) => (
             <Link
@@ -55,7 +69,6 @@ const Navbar = () => {
                     ? "font-bold capitalize"
                     : "font-normal hover:font-bold capitalize"
                 }
-                
               >
                 {item.title}
               </li>
@@ -78,24 +91,46 @@ const Navbar = () => {
 
       {/* Search Bar, Cart, User Avatar */}
       <div className="hidden xl:flex gap-[15px]">
-        <div className="w-[240px] h-[50px] pr-[17px] flex justify-between items-center border-2 border-primaryBg rounded-[999px] bg-secondaryBg">
+      <div className="relative flex items-center justify-center w-full">
+      <form className={`relative flex items-center transition-all duration-300 ease-out ${isVisible ? 'w-full' : 'w-10'}`}>
+        {/* Search Input */}
+        <div className="relative w-full ">
           <input
-            className="pl-5 py-[16.6px] mr-[17px] rounded-[999px] border-r-2 w-full h-full focus:outline-black rounded-r-none bg-secondaryBg"
-            type="text"
+            type="search"
+            name="search"
+            pattern=".*\S.*"
+            required
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className={`transition-all duration-300 ease-out bg-white border-2 border-gray-700 rounded-full px-3 py-2 shadow-inner focus:outline-none peer ${isVisible ? 'w-full scale-100' : 'w-0 scale-0'} pl-12 pr-10`}
             placeholder="Search"
-            autoComplete="false"
+            autoComplete="off"
             spellCheck="false"
+            onBlur={() => setIsVisible(false)} // Hide search bar when it loses focus
           />
-          <div className="cursor-pointer">
-            <Image
-              className="object-contain w-4 h-4"
-              src="/search.svg"
-              alt="search"
-              width={16}
-              height={16}
-            />
-          </div>
+          {searchText && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 dark:text-gray-300 bg-transparent"
+            >
+              {/* <FaTimes className="text-gray-700" /> */}
+            </button>
+          )}
         </div>
+        {/* Search Button */}
+        <button
+          type="submit"
+          onClick={toggleSearchBar}
+          className={`relative right-6 transition-all duration-300 ease-out bg-transparent flex items-center justify-center transform ${isVisible ? 'opacity-0' : 'opacity-100'}`}
+        >
+          <svg className="w-6 h-6 fill-current text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <title>Search</title>
+            <path d="M41.7,3.3C20.6,3.3,3.4,20,3.4,40.7s17.1,37.4,38.3,37.4c5.9,0,11.5-1.3,16.5-3.7c2.5-1.2,5.5-0.6,7.5,1.3l19.4,19c2.6,2.5,6.7,2.5,9.3,0l0,0c2.7-2.6,2.7-6.9,0-9.6L76.1,67.3c-2.2-2.1-2.7-5.5-1.1-8.1c3.2-5.4,5-11.7,5-18.4C80,20,62.9,3.3,41.7,3.3L41.7,3.3z M41.7,12.1C57.9,12.1,71,24.9,71,40.7S57.9,69.4,41.7,69.4S12.5,56.6,12.5,40.7S25.5,12.1,41.7,12.1L41.7,12.1z"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
 
         <div className="gap-4 flex justify-center items-center">
           <Link href="/cart" className="w-[24.53px] h-[24.53px]">
