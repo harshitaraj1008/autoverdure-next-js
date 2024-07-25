@@ -4,9 +4,9 @@ import "./styles.css";
 import Select from 'react-select';
 import Image from "next/image";
 
-const ProductListPage = () => {
+const ProductListPage = (props) => {
   const [showForm, setShowForm] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(props.products);
   const [productName, setProductName] = useState("");
   const [productDetails, setProductDetails] = useState("");
   const [productPrice, setProductPrice] = useState("");
@@ -121,7 +121,8 @@ const ProductListPage = () => {
 
 
       try {
-        const response = await fetch(`/api/products/update/${newProduct.id}`, {
+        console.log('Edit')
+        const response = await fetch(`/api/products/${newProduct.id}/edit`, {
         method: 'PUT',
         body: JSON.stringify(newProduct),
         headers: {
@@ -145,17 +146,24 @@ const ProductListPage = () => {
         try{
           const formData = new FormData();
 
+          formData.append('firstImage', productImages.first);
+          formData.append('secondImage', productImages.second);
+          formData.append('thirdImage', productImages.third);
+          formData.append('fourthImage', productImages.fourth);
+          formData.append('fifthImage', productImages.fifth);
+
           Object.keys(newProduct).forEach((key) => {
 
-            if (key === 'images') {
+            // if (key === 'images') {
 
-              newProduct.images.forEach((image, index) => {
+            //   newProduct.images.forEach((image, index) => {
                 
-                formData.append(`images[${index}]`, image);
+            //     formData.append(`images[${index}]`, image);
              
-              });
-            } 
-            else if (typeof newProduct[key] === 'object' && newProduct[key] !== null) 
+            //   });
+            // } 
+            // else 
+            if (typeof newProduct[key] === 'object' && newProduct[key] !== null) 
             {
               Object.keys(newProduct[key]).forEach((subKey) => {
                 formData.append(`${key}[${subKey}]`, newProduct[key][subKey]);
@@ -165,7 +173,7 @@ const ProductListPage = () => {
               formData.append(key, newProduct[key]);
             }
           });
-    
+          console.log('Create')
           const response = await fetch('/api/products/add', {
             method: 'POST',
             body: formData,
@@ -272,7 +280,6 @@ const ProductListPage = () => {
       {!showForm ? (
         <div >
           <div className="header">
-            <h1>All Products</h1>
             <button
               className="add-product-button"
               onClick={handleAddProductClick}
@@ -303,10 +310,10 @@ const ProductListPage = () => {
                 className="px-[35px] py-[38px] text-xs w-full border-[1px] border-black rounded-2xl bg-white flex justify-between items-center"
                 >
                 <input type="checkbox" checked={selectedProducts.includes(index)} className="product-checkbox" onChange={(e) => handleCheckboxChange(index)}/>
-                  <td className="w-[110px]">{product.name}</td>
+                  <td className="w-[110px]">{product.productName}</td>
                   <td className="w-[120px]">{product.dimensions}</td>
                   <td className="w-[70px]">{product.stockQuantity}</td>
-                  <td className="w-[90px]">{product.type}</td>
+                  <td className="w-[90px]">{product.productType}</td>
                   <td className="w-[70px] flex justify-around items-center">
                     <button onClick={() => handleEdit(index)}
                       className="edit-button">
