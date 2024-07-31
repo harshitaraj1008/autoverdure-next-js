@@ -4,9 +4,9 @@ import "./styles.css";
 import Select from 'react-select';
 import Image from "next/image";
 
-const ProductListPage = (props) => {
+const ProductListPage = ({ products: initialProducts }) => {
   const [showForm, setShowForm] = useState(false);
-  const [products, setProducts] = useState(props.products);
+  const [products, setProducts] = useState(initialProducts);
   const [productName, setProductName] = useState("");
   const [productDetails, setProductDetails] = useState("");
   const [productPrice, setProductPrice] = useState("");
@@ -91,115 +91,153 @@ const ProductListPage = (props) => {
     e.preventDefault();
     setLoading(true);
 
-    const newProduct = {
-      id: editIndex !== null ? products[editIndex].id : products.length+1,
-      name: productName,
-      description: productDetails,
-      price: productPrice,
-      type: type,
-      stockQuantity: stockQuantity,
-      innerHeight: innerHeight,
-      innerLength: innerLength,
-      dimensions: dimensions,
-      images: Object.values(productImages).filter((image) => image),
-      attributes: {
-        petFriendly: checkboxes.petFriendly,
-        notPetFriendly: checkboxes.notPetFriendly,
-        moreSunlight: checkboxes.moreSunlight,
-        lessSunlight: checkboxes.lessSunlight,
-      },
-      colors: colors.map(color => color.value),
-      size: size.map(size => size.value),
-      finish: finish.map(finish => finish.value),
+    const createFormData = (product) => {
+      const formData = new FormData();
+    formData.append("productName", product.name);
+    formData.append("productDetails", product.description);
+    formData.append("productPrice", product.price);
+    formData.append("type", product.type);
+    formData.append("stockQuantity", product.stockQuantity);
+
+    const images = product.images;
+    formData.append('firstImage', images[0]);
+    formData.append('secondImage', images[1]);
+    formData.append('thirdImage', images[2]);
+    formData.append('fourthImage', images[3]);
+    formData.append('fifthImage', images[4]);
+
+    formData.append('innerLength', product.innerLength);
+    formData.append('innerHeight', product.innerHeight);
+    formData.append('dimensions', product.dimensions);
+
+    Object.keys(checkboxes).forEach((key) => {
+      formData.append(key,`${checkboxes[key]}`);
+    })
+    // Object.keys(product.attributes).forEach((key) => {
+    //   formData.append(`attributes[${key}]`, product.attributes[key]);
+    // });
+    // console.log(colors)
+    colors.forEach((color, index) => {
+      console.log(color.value)
+      formData.append(color.value,'true');
+    });
+
+    product.size.forEach((size, index) => {
+      formData.append(size,'true');
+    });
+
+    product.finish.forEach((finish, index) => {
+      formData.append(finish,'true');
+    });
+
+    return formData;
+  };
+
+  const logFormData = (formData) => {
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
     };
-    
-    if(editIndex !== null)
-    {
+  
+    if (editIndex !== null) {
       const updatedProducts = [...products];
-      updatedProducts[editIndex]= newProduct;
-      setProducts(updatedProducts);
-
-
-      try {
-        console.log('Edit')
-        const response = await fetch(`/api/products/${newProduct.id}/edit`, {
-        method: 'PUT',
-        body: JSON.stringify(newProduct),
-        headers: {
-          'Content-Type': 'application/json',
+      const newProduct = {
+        id: products[editIndex].id,
+        name: productName,
+        description: productDetails,
+        price: productPrice,
+        type: type,
+        stockQuantity: stockQuantity,
+        innerHeight: innerHeight,
+        innerLength: innerLength,
+        dimensions: dimensions,
+        images: Object.values(productImages).filter((image) => image),
+        attributes: {
+          petFriendly: checkboxes.petFriendly,
+          notPetFriendly: checkboxes.notPetFriendly,
+          moreSunlight: checkboxes.moreSunlight,
+          lessSunlight: checkboxes.lessSunlight,
         },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      
-      const result = await response.json();
-      console.log('Product Updated', result)
-      } 
-      catch (error) {
-        console.error('There was a problem with your fetch operation:', error);
-      }}
-      else{
-        setProducts([...products, newProduct]);
-      
-        try{
-          const formData = new FormData();
-
-          formData.append('firstImage', productImages.first);
-          formData.append('secondImage', productImages.second);
-          formData.append('thirdImage', productImages.third);
-          formData.append('fourthImage', productImages.fourth);
-          formData.append('fifthImage', productImages.fifth);
-
-          Object.keys(newProduct).forEach((key) => {
-
-            // if (key === 'images') {
-
-            //   newProduct.images.forEach((image, index) => {
-                
-            //     formData.append(`images[${index}]`, image);
-             
-            //   });
-            // } 
-            // else 
-            if (typeof newProduct[key] === 'object' && newProduct[key] !== null) 
-            {
-              Object.keys(newProduct[key]).forEach((subKey) => {
-                formData.append(`${key}[${subKey}]`, newProduct[key][subKey]);
-              });
-            } 
-            else {
-              formData.append(key, newProduct[key]);
-            }
-          });
-          console.log('Create')
-          const response = await fetch('/api/products/add', {
-            method: 'POST',
-            body: formData,
-          });
-    
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-    
-          const result = await response.json();
-    
-          if (response.status === 200) {
-            window.location.href = `store/${productName}/${result.id}`;
-          }
-    
-          console.log('Product added:', result);
-        } catch (error) {
-          console.error('There was a problem with your fetch operation:', error);
+        colors: colors.map(color => color.value),
+        size: size.map(size => size.value),
+        finish: finish.map(finish => finish.value),
+      };
+  
+      updatedProducts[editIndex] = newProduct;
+      setProducts(updatedProducts);
+  
+      try {
+        const formData = createFormData(newProduct);
+        logFormData(formData);
+        
+        const response = await fetch(`/api/products/update/${newProduct.id}`, {
+          method: 'PUT',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
+  
+        const result = await response.json();
+        console.log('Product Updated', result);
+      } catch (error) {
+        console.error('There was a problem with your fetch operation:', error);
       }
-    
-      setTimeout(() => {
-        setLoading(false);
-        setShowForm(false);
-        clearForm();
-      }, 2000);
+    } else {
+      const newProduct = {
+        id: products.length + 1,
+        name: productName,
+        description: productDetails,
+        price: productPrice,
+        type: type,
+        stockQuantity: stockQuantity,
+        innerHeight: innerHeight,
+        innerLength: innerLength,
+        dimensions: dimensions,
+        images: Object.values(productImages).filter((image) => image),
+        attributes: {
+          petFriendly: checkboxes.petFriendly,
+          notPetFriendly: checkboxes.notPetFriendly,
+          moreSunlight: checkboxes.moreSunlight,
+          lessSunlight: checkboxes.lessSunlight,
+        },
+        colors: colors.map(color => color.value),
+        size: size.map(size => size.value),
+        finish: finish.map(finish => finish.value),
+      };
+  
+      setProducts([...products, newProduct]);
+  
+      try {
+        const formData = createFormData(newProduct);
+        logFormData(formData)
+        const response = await fetch('/api/products/add', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+  
+        const result = await response.json();
+  
+        if (response.status === 200) {
+          window.location.href = `store/${productName}/${result.id}`;
+        }
+  
+        console.log('Product added:', result);
+      } catch (error) {
+        console.error('There was a problem with your fetch operation:', error);
+      }
+    }
+  
+    setTimeout(() => {
+      setLoading(false);
+      setShowForm(false);
+      clearForm();
+    }, 2000);
   };
   
 
@@ -280,6 +318,7 @@ const ProductListPage = (props) => {
       {!showForm ? (
         <div >
           <div className="header">
+            <h1>All Products</h1>
             <button
               className="add-product-button"
               onClick={handleAddProductClick}
@@ -579,7 +618,6 @@ export async function getServerSideProps() {
 
   const products = [...(zenpot ? zenpot : []), ...(grobox ? grobox : []), ...(plant ? plant : []), ...(accessory ? accessory : [])];
 
-  // console.log(products)
   return {
     
     props: {
